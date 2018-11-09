@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Number Comma</title>
+    <style>
+        html {
+            font-size: 200%;
+        }
+
+        input {
+            font-size: inherit;
+        }
+
+        * + * {
+            margin-top: .5em;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <div><label for="amount">Type numbers:</label></div>
+        <input type="text" id="amount" class="text-right">won
+    </div>
+</div>
+
+<script>
+    document.getElementById('amount').addEventListener('keyup', function (e) {
+        var value = String(this.value);
+        var number = value.replace(/[^0-9]/g, '');
+
+        if (number && needReplace(value)) {
+            // Get new caret position
+            var newCaretPosition = getNewCaretPosition(value, this.selectionStart);
+
+            // change element's value
+            this.value = parseFloat(number).toLocaleString();
+
+            // Set caret position using setSelectionRange. Put start & end parameters equally.
+            this.setSelectionRange(newCaretPosition, newCaretPosition);
+        }
+    });
+
+    function needReplace(value) {
+        return (value !== parseFloat(String(value).replace(/[^0-9]/g, '')).toLocaleString());
+    }
+
+    function getNewCaretPosition(value, caretPosition) {
+        var number = String(value).replace(/[^0-9]/g, ''),
+            needCommaCount = getCommaCount(parseFloat(number).toLocaleString()),
+            currentCommaCount = getCommaCount(value),
+            newCaretPosition = caretPosition;
+
+        // All new comma will be inserted left of caret.
+        // So, if comma count to need is greater than current comma count then add 1 to new caret position.
+        if (needCommaCount > currentCommaCount) {
+            newCaretPosition = caretPosition + 1;
+        }
+
+        return newCaretPosition;
+    }
+
+    function getCommaCount(value) {
+        return value.replace(/[^,]/g, '').length;
+    }
+</script>
+
+
+<script>
+    function assertEqual(expression, expected, comment) {
+        if (expression === expected) {
+            console.log(true);
+        } else {
+            console.log(false);
+            console.log(comment, 'Expected ' + expected + ' but result is ' + expression);
+        }
+    }
+
+    function test() {
+        assertEqual(getNewCaretPosition('123,4567', 8), 9, '123,456| -> 1,234,567|');
+        assertEqual(getNewCaretPosition('7123,456', 1), 2, '|123,456 -> 7,|123,456');
+        assertEqual(getNewCaretPosition('1,234,5678', 7), 7, '1,234,|678 -> 12,345,|678');
+        assertEqual(getNewCaretPosition('1,2345,678', 6), 6, '1,234|,678 -> 12,345|,678');
+        assertEqual(getNewCaretPosition('12,34,678', 5), 5, '12,345|,678 -> 1,234|,678');
+        assertEqual(getNewCaretPosition('123,4156,789', 6), 7, '123,4|56,789 -> 123,41|56,789');
+    }
+
+    test();
+</script>
+
+</body>
+</html>

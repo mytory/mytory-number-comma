@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Number Comma</title>
+    <style>
+        * + * {
+            margin-top: .5em;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <div>Type numbers:</div>
+            <input type="text" id="amount">won
+            <div>
+                Caret Position:
+                <span id="caret-position">?</span>
+            </div>
+            <div>
+                Caret Position from Right:
+                <span id="caret-position-from-right">?</span>
+            </div>
+            <div>
+                Number Length:
+                <span id="number-length">?</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var amountEl = document.getElementById('amount');
+    amountEl.addEventListener('keyup', function (e) {
+        var number = this.value.replace(/[^0-9]/g, '');
+
+        if (number && this.value !== parseFloat(number).toLocaleString()) {
+            console.log('current:', this.value, 'comma:', parseFloat(number).toLocaleString());
+
+
+            var newCaretPosition = getNewCaretPosition(this.value, this.selectionStart);
+            this.value = parseFloat(number).toLocaleString();
+            this.setSelectionRange(newCaretPosition, newCaretPosition);
+        }
+
+
+        document.getElementById('caret-position').innerText = this.selectionStart;
+        document.getElementById('caret-position-from-right').innerText = this.value.length - this.selectionStart;
+        document.getElementById('number-length').innerText = this.value.replace(/[^0-9]/g, '').length;
+    });
+
+    function getNewCaretPosition(value, caretPosition) {
+        var leftOfCaret = value.substr(0, caretPosition);
+        var rightOfCaret = value.substr(caretPosition)
+        var newCaretPosition = caretPosition;
+
+        console.log('left:', leftOfCaret);
+        console.log('right:', rightOfCaret);
+
+
+        var stringToTest = parseFloat(leftOfCaret.replace(/[^0-9]/g, '')).toLocaleString();
+
+
+        console.log('left of caret:', leftOfCaret);
+        console.log('new left of caret:', stringToTest);
+
+        
+        if (leftOfCaret.length < stringToTest.length) {
+            newCaretPosition = caretPosition + 1;
+        }
+
+        console.log('caret position:', caretPosition);
+        console.log('new caret position:', newCaretPosition);
+
+        return newCaretPosition;
+    }
+
+    function assertEqual(expression, expected, comment) {
+        if (expression === expected) {
+            console.log(true);
+        } else {
+            console.log(false);
+            console.log(comment, 'Expected ' + expected + ' but result is ' + expression);
+        }
+    }
+
+    function test() {
+        assertEqual(getNewCaretPosition('123,4567', 8), 9, '123,456| -> 1,234,567|');
+        assertEqual(getNewCaretPosition('7123,456', 1), 1, '|123,456 -> 7|,123,456');
+        assertEqual(getNewCaretPosition('1,234,5678', 7), 7, '1,234,|678 -> 12,345,|678');
+        assertEqual(getNewCaretPosition('1,2345,678', 6), 6, '1,234|,678 -> 12,345|,678');
+        assertEqual(getNewCaretPosition('12,34,678', 5), 5, '12,345|,678 -> 1,234|,678');
+    }
+
+    test();
+
+
+    </script>
+
+</body>
+</html>
